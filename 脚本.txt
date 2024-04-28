@@ -1,0 +1,18 @@
+# SIMD_neon.sh
+#!/bin/sh
+# PBS -N SIMD_neon
+
+pssh -h $PBS_NODEFILE mkdir -p /home/s2212294/SIMD 1>&2           
+scp master:/home/s2212294/SIMD/SIMD_neon /home/s2212294/SIMD
+pscp -h $PBS_NODEFILE master:/home/s2212294/SIMD/SIMD_neon /home/s2212294/SIMD 1>&2
+/home/s2212294/SIMD/SIMD_neon
+按顺序输入
+vim SIMD_neon.cpp
+g++ -o SIMD_neon SIMD_neon.cpp
+//cat > SIMD_neon.sh
+
+qsub SIMD_neon.sh
+cat SIMD_neon.sh.o
+rm SIMD_neon.sh.[eo]
+
+
