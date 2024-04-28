@@ -1,0 +1,325 @@
+# include <arm_neon.h> // use Neon
+# include <sys/time.h>
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
+using namespace std;
+
+
+const int lie = 37960;
+const int pas = 14921;
+const int Num = 1+lie/32;
+
+unsigned int Act[lie][Num+1] = { 0 };
+unsigned int Pas[lie][Num+1] = { 0 };
+
+void init_A()
+{
+    unsigned int a;
+    ifstream infile("2.txt");
+    char fin[100000] = { 0 };
+    int index;
+    while (infile.getline(fin, sizeof(fin)))
+    {
+        std::stringstream line(fin);
+        int symb = 0;
+
+        while (line >> a)
+        {
+            if (symb == 0)
+            {
+                index = a;
+                symb = 1;
+            }
+            int k = a % 32;
+            int j = a / 32;
+
+            int temp = 1 << k;
+            Act[index][Num-1 - j] += temp;
+            Act[index][Num] = 1;
+        }
+    }
+}
+
+void init_P()
+{
+    unsigned int a;
+    ifstream infile("1.txt");
+    char fin[100000] = { 0 };
+    int index = 0;
+    while (infile.getline(fin, sizeof(fin)))
+    {
+        std::stringstream line(fin);
+        int symb = 0;
+
+        while (line >> a)
+        {
+            if (symb == 0)
+            {
+                Pas[index][Num] = a;
+                symb = 1;
+            }
+
+            int k = a % 32;
+            int j = a / 32;
+
+            int temp = 1 << k;
+            Pas[index][Num-1 - j] += temp;
+        }
+        index++;
+    }
+}
+
+
+
+
+
+void f_ordinary()
+{
+    int i;
+    for (i = lie-1; i - 8 >= -1; i -= 8)
+    {
+
+        for (int j = 0; j < pas; j++)
+        {
+            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            {
+                int index = Pas[j][Num];
+                if (Act[index][Num] == 1)
+                {
+                    for (int k = 0; k < Num; k++)
+                    {
+                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                    }
+
+                    int num = 0, S_num = 0;
+                    for (num = 0; num < Num; num++)
+                    {
+                        if (Pas[j][num] != 0)
+                        {
+                            unsigned int temp = Pas[j][num];
+                            while (temp != 0)
+                            {
+                                temp = temp >> 1;
+                                S_num++;
+                            }
+                            S_num += num * 32;
+                            break;
+                        }
+                    }
+                    Pas[j][Num] = S_num - 1;
+
+                }
+                else
+                {
+                    for (int k = 0; k < Num; k++)
+                        Act[index][k] = Pas[j][k];
+
+                    Act[index][Num] = 1;
+                    break;
+                }
+
+            }
+        }
+    }
+
+
+    for (i = i + 8; i >= 0; i--)
+    {
+
+        for (int j = 0; j < pas; j++)
+        {
+            while (Pas[j][Num] == i)
+            {
+                if (Act[i][Num] == 1)
+                {
+                    for (int k = 0; k < Num; k++)
+                    {
+                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                    }
+
+                    int num = 0, S_num = 0;
+                    for (num = 0; num < Num; num++)
+                    {
+                        if (Pas[j][num] != 0)
+                        {
+                            unsigned int temp = Pas[j][num];
+                            while (temp != 0)
+                            {
+                                temp = temp >> 1;
+                                S_num++;
+                            }
+                            S_num += num * 32;
+                            break;
+                        }
+                    }
+                    Pas[j][Num] = S_num - 1;
+
+                }
+                else
+                {
+                    for (int k = 0; k < Num; k++)
+                        Act[i][k] = Pas[j][k];
+
+                    Act[i][Num] = 1;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+void f_pro()
+{
+    int i;
+    for (i = lie-1; i - 8 >= -1; i -= 8)
+    {
+        for (int j = 0; j < pas; j++)
+        {
+            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            {
+                int index = Pas[j][Num];
+                if (Act[index][Num] == 1)
+                {
+
+                    int k;
+                    for (k = 0; k+4 <= Num; k+=4)
+                    {
+                        //Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        uint32x4_t vaPas =  vld1q_u32(& (Pas[j][k]));
+                        uint32x4_t vaAct =  vld1q_u32(& (Act[index][k]));
+
+                        vaPas = veorq_u32(vaPas,vaAct);
+                        vst1q_u32( &(Pas[j][k]) , vaPas );
+                    }
+
+                    for( ; k<Num; k++ )
+                    {
+                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                    }
+
+
+                    int num = 0, S_num = 0;
+                    for (num = 0; num < Num; num++)
+                    {
+                        if (Pas[j][num] != 0)
+                        {
+                            unsigned int temp = Pas[j][num];
+                            while (temp != 0)
+                            {
+                                temp = temp >> 1;
+                                S_num++;
+                            }
+                            S_num += num * 32;
+                            break;
+                        }
+                    }
+                    Pas[j][Num] = S_num - 1;
+
+                }
+                else
+                {
+                    for (int k = 0; k < Num; k++)
+                        Act[index][k] = Pas[j][k];
+
+                    Act[index][Num] = 1;
+                    break;
+                }
+            }
+        }
+    }
+
+
+    for (i = i + 8; i >= 0; i--)
+    {
+        for (int j = 0; j < pas; j++)
+        {
+            while (Pas[j][Num] == i)
+            {
+                if (Act[i][Num] == 1)
+                {
+
+                    int k;
+                    for (k = 0; k+4 <= Num; k+=4)
+                    {
+                        //Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        uint32x4_t va_Pas =  vld1q_u32(& (Pas[j][k]));
+                        uint32x4_t va_Act =  vld1q_u32(& (Act[i][k]));
+
+                        va_Pas = veorq_u32(va_Pas,va_Act);
+                        vst1q_u32( &(Pas[j][k]) , va_Pas );
+                    }
+
+                    for( ; k<Num; k++ )
+                    {
+                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                    }
+
+
+
+                    int num = 0, S_num = 0;
+                    for (num = 0; num < Num; num++)
+                    {
+                        if (Pas[j][num] != 0)
+                        {
+                            unsigned int temp = Pas[j][num];
+                            while (temp != 0)
+                            {
+                                temp = temp >> 1;
+                                S_num++;
+                            }
+                            S_num += num * 32;
+                            break;
+                        }
+                    }
+                    Pas[j][Num] = S_num - 1;
+
+                }
+                else
+                {
+                    for (int k = 0; k < Num; k++)
+                        Act[i][k] = Pas[j][k];
+
+                    Act[i][Num] = 1;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+
+
+int main()
+{
+
+    struct timeval head,tail;
+
+    init_A();
+    init_P();
+    gettimeofday(&head, NULL);
+    f_ordinary();
+    gettimeofday(&tail, NULL);
+    double seconds = ((tail.tv_sec - head.tv_sec)*1000000 + (tail.tv_usec - head.tv_usec)) / 1000.0;
+    cout<<"f_ordinary: "<<seconds<<" ms"<<endl;
+
+    init_A();
+    init_P();
+    gettimeofday(&head, NULL);//��ʼ��ʱ
+    f_pro();
+    gettimeofday(&tail, NULL);//������ʱ
+    seconds = ((tail.tv_sec - head.tv_sec)*1000000 + (tail.tv_usec - head.tv_usec)) / 1000.0;
+    cout<<"f_pro: "<<seconds<<" ms"<<endl;
+
+    //getResult();
+
+}
+
+
+
+
+
+
