@@ -8,7 +8,7 @@ pscp -h $PBS_NODEFILE master:/home/s2212294/SIMD/SIMD_neon /home/s2212294/SIMD 1
 /home/s2212294/SIMD/SIMD_neon
 按顺序输入
 vim SIMD_neon.cpp
-g++ -o SIMD_neon SIMD_neon.cpp
+clang++ -o SIMD_neon SIMD_neon.cpp
 //cat > SIMD_neon.sh
 
 qsub SIMD_neon.sh
