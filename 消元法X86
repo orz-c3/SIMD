@@ -108,13 +108,12 @@ void f_ordinary()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -122,11 +121,8 @@ void f_ordinary()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
 
             }
@@ -153,13 +149,12 @@ void f_ordinary()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -167,11 +162,8 @@ void f_ordinary()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
@@ -220,13 +212,12 @@ void f_sse()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -234,11 +225,8 @@ void f_sse()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
             }
         }
@@ -276,13 +264,12 @@ void f_sse()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -290,11 +277,8 @@ void f_sse()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
@@ -344,13 +328,12 @@ void f_avx256()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -358,11 +341,8 @@ void f_avx256()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
             }
         }
@@ -401,13 +381,12 @@ void f_avx256()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -415,11 +394,8 @@ void f_avx256()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
@@ -468,13 +444,12 @@ void f_avx512()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -482,11 +457,8 @@ void f_avx512()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
             }
         }
@@ -527,13 +499,12 @@ void f_avx512()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                            if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
+                        }
                         }
                     }
                     Pas[j][Num] = S_num - 1;
@@ -541,11 +512,8 @@ void f_avx512()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
