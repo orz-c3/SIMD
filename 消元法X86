@@ -192,7 +192,7 @@ void f_sse()
                     int k;
                     for (k = 0; k + 4 <= Num; k += 4)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        
                         va_Pas = _mm_loadu_ps((float*)&(Pas[j][k]));
                         va_Act = _mm_loadu_ps((float*)&(Act[index][k]));
 
@@ -307,12 +307,19 @@ void f_avx256()
                     int k;
                     for (k = 0; k + 8 <= Num; k += 8)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        
                         va_Pas2 = _mm256_loadu_ps((float*)&(Pas[j][k]));
                         va_Act2 = _mm256_loadu_ps((float*)&(Act[index][k]));
 
                         va_Pas2 = _mm256_xor_ps(va_Pas2, va_Act2);
                         _mm256_storeu_ps((float*)&(Pas[j][k]), va_Pas2);
+
+
+                        va_Pas2 = _mm256_loadu_ps((float*)&(Pas[j][k+4]));
+                        va_Act2 = _mm256_loadu_ps((float*)&(Act[index][k—+4]));
+
+                        va_Pas2 = _mm256_xor_ps(va_Pas2, va_Act2);
+                        _mm256_storeu_ps((float*)&(Pas[j][k+4]), va_Pas2);
                     }
 
                     for (; k < Num; k++)
@@ -423,7 +430,7 @@ void f_avx512()
                     int k;
                     for (k = 0; k + 16 <= Num; k += 16)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        
                         va_Pas3 = _mm512_loadu_ps((float*)&(Pas[j][k]));
                         va_Act3 = _mm512_loadu_ps((float*)&(Act[index][k]));
 
