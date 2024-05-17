@@ -99,12 +99,10 @@ void f_ordinary()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                             if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
                         }
                     }
@@ -113,11 +111,8 @@ void f_ordinary()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
 
             }
@@ -145,12 +140,10 @@ void f_ordinary()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                             if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
                         }
                     }
@@ -159,11 +152,8 @@ void f_ordinary()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
@@ -171,7 +161,7 @@ void f_ordinary()
 }
 
 
-void f_pro()
+void f_neno()
 {
     int i;
     for (i = lie-1; i - 8 >= -1; i -= 8)
@@ -207,12 +197,10 @@ void f_pro()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                             if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
                         }
                     }
@@ -221,11 +209,8 @@ void f_pro()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[index][k] = Pas[j][k];
-
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
                     Act[index][Num] = 1;
-                    break;
                 }
             }
         }
@@ -265,12 +250,10 @@ void f_pro()
                         if (Pas[j][num] != 0)
                         {
                             unsigned int temp = Pas[j][num];
-                            while (temp != 0)
-                            {
-                                temp = temp >> 1;
-                                S_num++;
-                            }
-                            S_num += num * 32;
+                             if (temp != 0) {
+                            unsigned long index;
+                            _BitScanForward(&index, temp);
+                            S_num = index + num * 32;
                             break;
                         }
                     }
@@ -279,11 +262,8 @@ void f_pro()
                 }
                 else
                 {
-                    for (int k = 0; k < Num; k++)
-                        Act[i][k] = Pas[j][k];
-
-                    Act[i][Num] = 1;
-                    break;
+                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
+                    Act[index][Num] = 1;
                 }
             }
         }
@@ -309,10 +289,10 @@ int main()
     init_A();
     init_P();
     gettimeofday(&head, NULL);//��ʼ��ʱ
-    f_pro();
+    f_neno();
     gettimeofday(&tail, NULL);//������ʱ
     seconds = ((tail.tv_sec - head.tv_sec)*1000000 + (tail.tv_usec - head.tv_usec)) / 1000.0;
-    cout<<"f_pro: "<<seconds<<" ms"<<endl;
+    cout<<"f_neno: "<<seconds<<" ms"<<endl;
 
     //getResult();
 
