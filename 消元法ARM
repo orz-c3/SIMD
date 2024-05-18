@@ -11,8 +11,8 @@ const int lie = 37960;
 const int pas = 14921;
 const int Num = 1+lie/32;
 
-unsigned int Act[lie][Num+1] = { 0 };
-unsigned int Pas[lie][Num+1] = { 0 };
+unsigned int act[lie][Num+1] = { 0 };
+unsigned int mat[lie][Num+1] = { 0 };
 
 void init_A()
 {
@@ -36,8 +36,8 @@ void init_A()
             int j = a / 32;
 
             int temp = 1 << k;
-            Act[index][Num-1 - j] += temp;
-            Act[index][Num] = 1;
+            act[index][Num-1 - j] += temp;
+            act[index][Num] = 1;
         }
     }
 }
@@ -57,7 +57,7 @@ void init_P()
         {
             if (symb == 0)
             {
-                Pas[index][Num] = a;
+                mat[index][Num] = a;
                 symb = 1;
             }
 
@@ -65,7 +65,7 @@ void init_P()
             int j = a / 32;
 
             int temp = 1 << k;
-            Pas[index][Num-1 - j] += temp;
+            mat[index][Num-1 - j] += temp;
         }
         index++;
     }
@@ -83,22 +83,22 @@ void f_ordinary()
 
         for (int j = 0; j < pas; j++)
         {
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
                     for (int k = 0; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                              if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -106,13 +106,13 @@ void f_ordinary()
                             break;
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
 
             }
@@ -125,21 +125,21 @@ void f_ordinary()
 
         for (int j = 0; j < pas; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
                     for (int k = 0; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                              if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -147,13 +147,13 @@ void f_ordinary()
                             break;
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -168,35 +168,35 @@ void f_neno()
     {
         for (int j = 0; j < pas; j++)
         {
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
 
                     int k;
                     for (k = 0; k+4 <= Num; k+=4)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[index][k];
-                        uint32x4_t vaPas =  vld1q_u32(& (Pas[j][k]));
-                        uint32x4_t vaAct =  vld1q_u32(& (Act[index][k]));
+                        //mat[j][k] = mat[j][k] ^ act[index][k];
+                        uint32x4_t vamat =  vld1q_u32(& (mat[j][k]));
+                        uint32x4_t vaact =  vld1q_u32(& (act[index][k]));
 
-                        vaPas = veorq_u32(vaPas,vaAct);
-                        vst1q_u32( &(Pas[j][k]) , vaPas );
+                        vamat = veorq_u32(vamat,vaact);
+                        vst1q_u32( &(mat[j][k]) , vamat );
                     }
 
                     for( ; k<Num; k++ )
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
 
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                              if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -204,13 +204,13 @@ void f_neno()
                             break;
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -221,25 +221,25 @@ void f_neno()
     {
         for (int j = 0; j < pas; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
 
                     int k;
                     for (k = 0; k+4 <= Num; k+=4)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[i][k];
-                        uint32x4_t va_Pas =  vld1q_u32(& (Pas[j][k]));
-                        uint32x4_t va_Act =  vld1q_u32(& (Act[i][k]));
+                        //mat[j][k] = mat[j][k] ^ act[i][k];
+                        uint32x4_t va_mat =  vld1q_u32(& (mat[j][k]));
+                        uint32x4_t va_act =  vld1q_u32(& (act[i][k]));
 
-                        va_Pas = veorq_u32(va_Pas,va_Act);
-                        vst1q_u32( &(Pas[j][k]) , va_Pas );
+                        va_mat = veorq_u32(va_mat,va_act);
+                        vst1q_u32( &(mat[j][k]) , va_mat );
                     }
 
                     for( ; k<Num; k++ )
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
 
 
@@ -247,9 +247,9 @@ void f_neno()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                              if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -257,13 +257,13 @@ void f_neno()
                             break;
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
