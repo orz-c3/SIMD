@@ -14,11 +14,11 @@ using namespace std;
 
 
 const int lie = 37960;
-const int pas = 14921;
+const int mat = 14921;
 
 const int Num =  1+lie/32;
-unsigned int Act[lie][Num+1] = { 0 };
-unsigned int Pas[lie][Num+1] = { 0 };
+unsigned int act[lie][Num+1] = { 0 };
+unsigned int mat[lie][Num+1] = { 0 };
 
 
 void init_A()
@@ -44,8 +44,8 @@ void init_A()
             int j = a / 32;
 
             int temp = 1 << k;
-            Act[index][Num - 1 - j] += temp;
-            Act[index][Num] = 1;
+            act[index][Num - 1 - j] += temp;
+            act[index][Num] = 1;
         }
     }
 }
@@ -65,7 +65,7 @@ void init_P()
         {
             if (symb == 0)
             {
-                Pas[index][Num] = a;
+                mat[index][Num] = a;
                 symb = 1;
             }
 
@@ -73,7 +73,7 @@ void init_P()
             int j = a / 32;
 
             int temp = 1 << k;
-            Pas[index][Num - 1 - j] += temp;
+            mat[index][Num - 1 - j] += temp;
         }
         index++;
     }
@@ -88,26 +88,26 @@ void f_ordinary()
     int i;
     for (i = lie - 1; i - 8 >= -1; i -= 8)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
 
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
                     for (int k = 0; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
 
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -116,13 +116,13 @@ void f_ordinary()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
 
             }
@@ -132,23 +132,23 @@ void f_ordinary()
     for (i = i + 8; i >= 0; i--)
     {
 
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
                     for (int k = 0; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -157,13 +157,13 @@ void f_ordinary()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -172,8 +172,8 @@ void f_ordinary()
 
 
 
-__m128 va_Pas;
-__m128 va_Act;
+__m128 va_mat;
+__m128 va_act;
 
 
 void f_sse()
@@ -181,37 +181,37 @@ void f_sse()
     int i;
     for (i = lie - 1; i - 8 >= -1; i -= 8)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
 
                     int k;
                     for (k = 0; k + 4 <= Num; k += 4)
                     {
                         
-                        va_Pas = _mm_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act = _mm_loadu_ps((float*)&(Act[index][k]));
+                        va_mat = _mm_loadu_ps((float*)&(mat[j][k]));
+                        va_act = _mm_loadu_ps((float*)&(act[index][k]));
 
-                        va_Pas = _mm_xor_ps(va_Pas, va_Act);
-                        _mm_store_ss((float*)&(Pas[j][k]), va_Pas);
+                        va_mat = _mm_xor_ps(va_mat, va_act);
+                        _mm_store_ss((float*)&(mat[j][k]), va_mat);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
 
 
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -220,13 +220,13 @@ void f_sse()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -235,25 +235,25 @@ void f_sse()
 
     for (i = i + 8; i >= 0; i--)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
 
                     int k;
                     for (k = 0; k + 4 <= Num; k += 4)
                     {
-                        va_Pas = _mm_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act = _mm_loadu_ps((float*)&(Act[i][k]));
-                        va_Pas = _mm_xor_ps(va_Pas, va_Act);
-                        _mm_store_ss((float*)&(Pas[j][k]), va_Pas);
+                        va_mat = _mm_loadu_ps((float*)&(mat[j][k]));
+                        va_act = _mm_loadu_ps((float*)&(act[i][k]));
+                        va_mat = _mm_xor_ps(va_mat, va_act);
+                        _mm_store_ss((float*)&(mat[j][k]), va_mat);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
                     
 
@@ -261,9 +261,9 @@ void f_sse()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -272,13 +272,13 @@ void f_sse()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -287,20 +287,20 @@ void f_sse()
 }
 
 
-__m256 va_Pas2;
-__m256 va_Act2;
+__m256 va_mat2;
+__m256 va_act2;
 
 void f_avx256()
 {
     int i;
     for (i = lie - 1; i - 8 >= -1; i -= 8)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
 
 
@@ -308,23 +308,23 @@ void f_avx256()
                     for (k = 0; k + 8 <= Num; k += 8)
                     {
                         
-                        va_Pas2 = _mm256_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act2 = _mm256_loadu_ps((float*)&(Act[index][k]));
+                        va_mat2 = _mm256_loadu_ps((float*)&(mat[j][k]));
+                        va_act2 = _mm256_loadu_ps((float*)&(act[index][k]));
 
-                        va_Pas2 = _mm256_xor_ps(va_Pas2, va_Act2);
-                        _mm256_storeu_ps((float*)&(Pas[j][k]), va_Pas2);
+                        va_mat2 = _mm256_xor_ps(va_mat2, va_act2);
+                        _mm256_storeu_ps((float*)&(mat[j][k]), va_mat2);
 
 
-                        va_Pas2 = _mm256_loadu_ps((float*)&(Pas[j][k+4]));
-                        va_Act2 = _mm256_loadu_ps((float*)&(Act[index][k—+4]));
+                        va_mat2 = _mm256_loadu_ps((float*)&(mat[j][k+4]));
+                        va_act2 = _mm256_loadu_ps((float*)&(act[index][k—+4]));
 
-                        va_Pas2 = _mm256_xor_ps(va_Pas2, va_Act2);
-                        _mm256_storeu_ps((float*)&(Pas[j][k+4]), va_Pas2);
+                        va_mat2 = _mm256_xor_ps(va_mat2, va_act2);
+                        _mm256_storeu_ps((float*)&(mat[j][k+4]), va_mat2);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
                    
 
@@ -332,9 +332,9 @@ void f_avx256()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -343,13 +343,13 @@ void f_avx256()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -358,26 +358,26 @@ void f_avx256()
 
     for (i = i + 8; i >= 0; i--)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
 
                     int k;
                     for (k = 0; k + 8 <= Num; k += 8)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[i][k];
-                        va_Pas2 = _mm256_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act2 = _mm256_loadu_ps((float*)&(Act[i][k]));
-                        va_Pas2 = _mm256_xor_ps(va_Pas2, va_Act2);
-                        _mm256_storeu_ps((float*)&(Pas[j][k]), va_Pas2);
+                        //mat[j][k] = mat[j][k] ^ act[i][k];
+                        va_mat2 = _mm256_loadu_ps((float*)&(mat[j][k]));
+                        va_act2 = _mm256_loadu_ps((float*)&(act[i][k]));
+                        va_mat2 = _mm256_xor_ps(va_mat2, va_act2);
+                        _mm256_storeu_ps((float*)&(mat[j][k]), va_mat2);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
                     
 
@@ -385,9 +385,9 @@ void f_avx256()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -396,13 +396,13 @@ void f_avx256()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -410,20 +410,20 @@ void f_avx256()
 }
 
 
-__m512 va_Pas3;
-__m512 va_Act3;
+__m512 va_mat3;
+__m512 va_act3;
 
 void f_avx512()
 {
     int i;
     for (i = lie - 1; i - 8 >= -1; i -= 8)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] <= i && Pas[j][Num] >= i - 7)
+            while (mat[j][Num] <= i && mat[j][Num] >= i - 7)
             {
-                int index = Pas[j][Num];
-                if (Act[index][Num] == 1)
+                int index = mat[j][Num];
+                if (act[index][Num] == 1)
                 {
 
                     
@@ -431,16 +431,16 @@ void f_avx512()
                     for (k = 0; k + 16 <= Num; k += 16)
                     {
                         
-                        va_Pas3 = _mm512_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act3 = _mm512_loadu_ps((float*)&(Act[index][k]));
+                        va_mat3 = _mm512_loadu_ps((float*)&(mat[j][k]));
+                        va_act3 = _mm512_loadu_ps((float*)&(act[index][k]));
 
-                        va_Pas3 = _mm512_xor_ps(va_Pas3, va_Act3);
-                        _mm512_storeu_ps((float*)&(Pas[j][k]), va_Pas3);
+                        va_mat3 = _mm512_xor_ps(va_mat3, va_act3);
+                        _mm512_storeu_ps((float*)&(mat[j][k]), va_mat3);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[index][k];
+                        mat[j][k] = mat[j][k] ^ act[index][k];
                     }
                     
 
@@ -448,9 +448,9 @@ void f_avx512()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -459,13 +459,13 @@ void f_avx512()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
@@ -474,27 +474,27 @@ void f_avx512()
 
     for (i = i + 8; i >= 0; i--)
     {
-        for (int j = 0; j < pas; j++)
+        for (int j = 0; j < mat; j++)
         {
-            while (Pas[j][Num] == i)
+            while (mat[j][Num] == i)
             {
-                if (Act[i][Num] == 1)
+                if (act[i][Num] == 1)
                 {
 
                     
                     int k;
                     for (k = 0; k + 16 <= Num; k += 16)
                     {
-                        //Pas[j][k] = Pas[j][k] ^ Act[i][k];
-                        va_Pas3 = _mm512_loadu_ps((float*)&(Pas[j][k]));
-                        va_Act3 = _mm512_loadu_ps((float*)&(Act[i][k]));
-                        va_Pas3 = _mm512_xor_ps(va_Pas3, va_Act3);
-                        _mm512_storeu_ps((float*)&(Pas[j][k]), va_Pas3);
+                        //mat[j][k] = mat[j][k] ^ act[i][k];
+                        va_mat3 = _mm512_loadu_ps((float*)&(mat[j][k]));
+                        va_act3 = _mm512_loadu_ps((float*)&(act[i][k]));
+                        va_mat3 = _mm512_xor_ps(va_mat3, va_act3);
+                        _mm512_storeu_ps((float*)&(mat[j][k]), va_mat3);
                     }
 
                     for (; k < Num; k++)
                     {
-                        Pas[j][k] = Pas[j][k] ^ Act[i][k];
+                        mat[j][k] = mat[j][k] ^ act[i][k];
                     }
                     
 
@@ -503,9 +503,9 @@ void f_avx512()
                     int num = 0, S_num = 0;
                     for (num = 0; num < Num; num++)
                     {
-                        if (Pas[j][num] != 0)
+                        if (mat[j][num] != 0)
                         {
-                            unsigned int temp = Pas[j][num];
+                            unsigned int temp = mat[j][num];
                             if (temp != 0) {
                             unsigned long index;
                             _BitScanForward(&index, temp);
@@ -514,13 +514,13 @@ void f_avx512()
                         }
                         }
                     }
-                    Pas[j][Num] = S_num - 1;
+                    mat[j][Num] = S_num - 1;
 
                 }
                 else
                 {
-                    memcpy(Act[index], Pas[j], Num * sizeof(Pas[0][0]));
-                    Act[index][Num] = 1;
+                    memcpy(act[index], mat[j], Num * sizeof(mat[0][0]));
+                    act[index][Num] = 1;
                 }
             }
         }
